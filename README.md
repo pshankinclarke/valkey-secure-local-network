@@ -6,7 +6,7 @@ Hello! Thank you for stopping by. Here you'll find tools for managing and intera
 
 ## Running Valkey Clients on Windows
 
-If you're interested in running Valkey clients locally on Windows with Python or PowerShell, you can find more information [here](https://github.com/pshankinclarke/valkey-secure-local-network/tree/7247d6ebb223f2559a613492f0a631af40073dab/valkey-clients).
+If you're interested in running Valkey clients locally on Windows with Python or PowerShell, you can find more information [here](valkey-clients).
 
 ## Getting Started
 
@@ -28,7 +28,7 @@ make distclean
 
 To configure a Certificate Authority (CA) and create certificates and keys for the server and clients, you can use [trustme](https://trustme.readthedocs.io/en/latest/) to easily generate TLS certificates.
 
-The provided [scripts](ca-certs/) are based on `trustme`. Technically, these are real certificates, but they are signed by your CA, which is not trusted by anyone else. You can trust it for your tests, but do not use it for anything real.
+The provided [scripts](ca-scripts) are based on `trustme`. Technically, these are real certificates, but they are signed by your CA, which is not trusted by anyone else. You can trust it for your tests, but do not use it for anything real.
 
 #### Testing Certificate Authority
 
