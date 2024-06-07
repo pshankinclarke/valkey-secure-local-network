@@ -15,15 +15,21 @@ while true; do
     --cert /path/to/client-gamma.pem \
     --key /path/to/client-gamma.private.pem \
     --cacert /path/to/acme-cert-authority.ca.public.pem \
+    --user "$VALKEY_USERNAME" \
     -h server-alpha.network.local \
-    -p 6379 SET cpu_usage $cpu_usage
+    -p \
+    -a "$VALKEY_PASSWORD" \
+    6379 SET cpu_usage $cpu_usage
   
   ./src/valkey-cli --tls \
     --cert /path/to/client-gamma.pem \
     --key /path/to/client-gamma.private.pem \
     --cacert /path/to/acme-cert-authority.ca.public.pem \
+    --user "$VALKEY_USERNAME" \
     -h server-alpha.network.local \
-    -p 6379 SET memory_usage $memory_usage
+    -p 6379 \
+    -a "$VALKEY_PASSWORD" \
+    SET memory_usage $memory_usage
 
   sleep 60
 done
