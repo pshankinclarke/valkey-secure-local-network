@@ -6,7 +6,7 @@ This directory includes two scripts to run Valkey clients locally on Windows: on
 
 The setup is as follows:
 - The Valkey server is running on `server-alpha`.
-- A [monitoring script](https://github.com/pshankinclarke/valkey-secure-local-network/blob/dd053714d43ce3073f86d366c055260c04d242db/monitoring_script.sh) is running on `client-beta`.
+- A [monitoring script](../monitoring_script.sh) is running on `client-beta`.
 - The client scripts in this directory are running on `client-gamma`, which is a Windows machine.
 
 On the Windows machine (`client-gamma`), Valkey was installed through the Ubuntu app.
