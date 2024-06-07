@@ -215,7 +215,7 @@ If the `/etc/sysctl.conf` file doesn't already exist on your server's system, yo
    ```plaintext
    vm.overcommit_memory = 1
    ```
-
+### Configuring PID File Directory
 If the server encounters a permission issue when trying to write a PID file to `/var/run/valkey.pid`, you can specify an alternative location for the PID file. Follow these steps:
 
 1. **Create a Subdirectory:**
@@ -240,8 +240,6 @@ If the server encounters a permission issue when trying to write a PID file to `
    ```
 
 ## Configuring Server
-
-
 
 To start the Valkey server with TLS enabled, use the following command:
 ```
@@ -440,9 +438,9 @@ Use the `valkey-cli` command to retrieve the current TLS configuration of your V
 
 ### Connecting an External Client
 
-#### 1. Configuring Client on a Different Linux Machine
+#### 1. Configuring Client on a Seperate Linux Machine
 
-For this example, we will refer to the different machine as **`client-beta`**.
+Here, we refer to the different linux machine as **`client-beta`**.
 
 1. **Install Required Packages:**
 
@@ -467,6 +465,8 @@ For this example, we will refer to the different machine as **`client-beta`**.
    ```
 
 #### 2. Configuring Client on Windows
+
+Here, we refer to the different linux machine as **`client-gamma`**.
 
 1. **Set Up the Ubuntu App:**
 
@@ -647,7 +647,7 @@ Systemd services can manage various tasks and processes for our server in the ba
 
    Start the Valkey server service:
    ```bash
-   sudo systemctl restart valkey-server
+   sudo systemctl start valkey-server
    ```
 
 7. **Adjust Permissions if Necessary:**
