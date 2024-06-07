@@ -616,7 +616,7 @@ Systemd services can manage various tasks and processes for our server in the ba
    After=network-online.target
 
    [Service]
-   ExecStart=/home/valkeyuser/valkey/src/valkey-server /home/valkeyuser/valkey/valkey.conf --tls-port 6379 --port 0 --tls-cert-file /home/valkeyuser/valkey/tests/tls/cslab-horace.pem --tls-key-file /home/valkeyuser/valkey/tests/tls/cslab-horace.private.pem --tls-ca-cert-file /home/valkeyuser/valkey/tests/tls/acme-cert-authority.ca.public.pem
+   ExecStart=/home/valkeyuser/valkey/src/valkey-server /home/valkeyuser/valkey/valkey.conf --tls-port 6379 --port 0 --tls-cert-file /home/valkeyuser/valkey/tests/tls/server-alpha.pem --tls-key-file /home/valkeyuser/valkey/tests/tls/server-alpha.private.pem --tls-ca-cert-file /home/valkeyuser/valkey/tests/tls/acme-cert-authority.ca.public.pem
    LimitNOFILE=10032
    NoNewPrivileges=yes
    Type=notify
@@ -655,8 +655,8 @@ Systemd services can manage various tasks and processes for our server in the ba
    If the TLS directory and certificates do not have the correct permissions, update them to allow access. Ensure the `valkeyuser` user has read and execute permissions on the directory:
    ```bash
    sudo chmod 755 /home/valkeyuser/valkey/tests/tls
-   sudo chmod 644 /home/valkeyuser/valkey/tests/tls/cslab-horace.pem
-   sudo chmod 600 /home/valkeyuser/valkey/tests/tls/cslab-horace.private.pem
+   sudo chmod 644 /home/valkeyuser/valkey/tests/tls/server-alpha.pem
+   sudo chmod 600 /home/valkeyuser/valkey/tests/tls/server-alpha.private.pem
    sudo chmod 644 /home/valkeyuser/valkey/tests/tls/acme-cert-authority.ca.public.pem
    ```
 
