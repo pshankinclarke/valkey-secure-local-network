@@ -654,6 +654,7 @@ Systemd services can manage various tasks and processes for our server in the ba
 
    If the TLS directory and certificates do not have the correct permissions, update them to allow access. Ensure the `valkeyuser` user has read and execute permissions on the directory:
    ```bash
+   sudo chown -R valkeyuser:valkeyuser /home/valkeyuser/valkey
    sudo chmod 755 /home/valkeyuser/valkey/tests/tls
    sudo chmod 644 /home/valkeyuser/valkey/tests/tls/server-alpha.pem
    sudo chmod 600 /home/valkeyuser/valkey/tests/tls/server-alpha.private.pem
