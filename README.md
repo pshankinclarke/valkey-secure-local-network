@@ -77,24 +77,16 @@ bind 0.0.0.0
 - `::1` is the IPv6 equivalent of `127.0.0.1`.
 - `0.0.0.0` is a non-routable meta-address used to designate an invalid, unknown, or non-applicable target (a no particular address placeholder). In this context, it allows the server to listen on all available network interfaces to communicate with clients across different machines.
 
-3. **Disable Protected Mode:**
-Confirm that `protected-mode` is set to `no` to allow external connections:
+3. **Protected Mode Configuration**
 
-```plaintext
-protected-mode no
-```
+Protected mode restricts the server to only accept local connections if the default user has no password. However, with ACLs set up, external connections are allowed once authenticated.
 
-**Explanation:**
+### Protected Mode and ACL Configuration
 
-- `protected-mode` is a security feature that restricts access to the server when enabled. Setting it to `no` allows external connections, which is necessary for clients across different machines to connect to the server.
+Once you have an internal client configured (see [Configuring a Client](#configuring-a-client)), we can configure ACLs while `protected-mode` is still enabled to allow exeternal connections:
 
-### Protected Mode Configuration Options
-
-Valkey by default runs in protected mode, which restricts connections to only the loopback interface unless a password is set or protected mode is disabled. Once you have an internal client running (see [Configuring a Client](#configuring-a-client)), you have a few options to resolve this issue:
-
-#### Option 1: Disable Protected Mode Temporarily via the Client
-
-1. **Connect Locally on `server-alpha`:**
+1. **Configure ACLs:**
+   Connect to the Valkey server and create a new user with a password:
    ```bash
    ./src/valkey-cli -h localhost -p 6379 \
      --tls \
@@ -103,80 +95,38 @@ Valkey by default runs in protected mode, which restricts connections to only th
      --cacert ./tests/tls/acme-cert-authority.ca.public.pem
    ```
 
-2. **Run the Command to Disable Protected Mode:**
+2. **Create a Default User with a Password:**
+   Run the following command in the shell to set up the default user. Setting the `default` user to `OFF` is a security best practice:
    ```plaintext
-   localhost:6379> CONFIG SET protected-mode no
-   OK
+   ACL SETUSER default OFF >your_secure_password ALLKEYS ALLCOMMANDS
    ```
 
-3. **Make the Change Permanent (Optional):**
+3. **Create a New User with a Password:**
+   Run the following command to create a new user named `valkey_user` with a password. This user will be used with our Valkey client. 
    ```plaintext
-   localhost:6379> CONFIG SET REWRITE
-   OK
+   ACL SETUSER valkey_user ON >your_secure_password ALLKEYS ALLCOMMANDS
    ```
-
-4. **Confirm the Change:**
-   ```
-   localhost:6379> CONFIG GET protected-mode
-    1) "protected-mode"
-    2) "no"
-   ```
-
-#### Option 2: Disable Protected Mode Permanently in the Configuration File
-
-1. **Edit the Valkey Configuration File:**
-   Edit the Valkey configuration file on `server-alpha` to disable protected mode permanently. Locate the configuration file (often named `redis.conf` or `valkey.conf`).
-   ```bash
-   sudo nano /path/to/valkey.conf
-   ```
-
-2. **Find and Set the Protected Mode Option:**
-   Find the line that reads `protected-mode yes` and change it to:
+   
+4. **Verify the User and Permissions:**
    ```plaintext
-   protected-mode no
+   ACL LIST
    ```
 
-3. **Restart the Valkey Server:**
-   Restart the Valkey server to apply the changes.
-
-#### Option 3: Set a Password for the Default User
-
-1. **Set a Password in the Configuration File:**
-   Edit the Valkey configuration file to set a password for the default user.
-   ```bash
-   sudo nano /path/to/valkey.conf
-   ```
-
-2. **Add or Modify the Line:**
-   Add or modify the line to set a password:
-   ```plaintext
-   requirepass your_secure_password
-   ```
-
-3. **Restart the Valkey Server:**
-   Restart the Valkey server to apply the changes.
-
-4. **Connect Using the Password:**
+5. **Connect Using the Password:**
    Use the following command to connect using the password:
    ```bash
-   ./src/valkey-cli -h localhost -p 6379 -a your_secure_password \
+   ./src/valkey-cli -h localhost -p 6379 \
      --tls \
      --cert ./tests/tls/server-alpha.pem \
      --key ./tests/tls/server-alpha.private.pem \
-     --cacert ./tests/tls/acme-cert-authority.ca.public.pem
+     --cacert ./tests/tls/acme-cert-authority.ca.public.pem \
+     --user valkey_user
    ```
-
-In any case, verify the protected-mode setting.
-```
-./src/valkey-cli --tls \
-  --cert ./tests/tls/server-alpha.pem \
-  --key ./tests/tls/server-alpha.private.pem \
-  --cacert ./tests/tls/acme-cert-authority.ca.public.pem \
-  -h localhost \
-  -p 6379 CONFIG GET protected-mode
-1) "protected-mode"
-2) "no"
-```
+   
+   ```plaintext
+   localhost:6379> AUTH valkey_user your_secure_password
+   OK
+   ```
 
 ### Configuring `sysctl.conf` for Memory Overcommit
 
@@ -361,7 +311,8 @@ valkeyuser@server-alpha:~/valkey$ ./src/valkey-cli --tls \
   --key ./tests/tls/server-alpha.private.pem \
   --cacert ./tests/tls/acme-cert-authority.ca.public.pem \
   -h localhost \
-  -p 6379 PING
+  -p 6379 \ 
+  PING
 PONG
 ```
 
@@ -461,7 +412,7 @@ Here, we refer to the different linux machine as **`client-beta`**.
      --key ./tests/tls/client-beta.private.pem \
      --cacert ./tests/tls/acme-cert-authority.ca.public.pem \
      -h server-alpha.network.local \
-     -p 6379
+     -p 6379 
    ```
 
 #### 2. Configuring Client on Windows
@@ -497,10 +448,8 @@ Here, we refer to the different linux machine as **`client-gamma`**.
      --key /path/to/client-gamma.private.pem \
      --cacert /path/to/acme-cert-authority.ca.public.pem \
      -h server-alpha.network.local \
-     -p 6379
+     -p 6379 
    ```
-
-If the remote connection works, you can decide whether to make the change permanent or set a password for better security.
 
 ## Monitoring
 
@@ -527,15 +476,21 @@ If the remote connection works, you can decide whether to make the change perman
        --cert /path/to/client-gamma.pem \
        --key /path/to/client-gamma.private.pem \
        --cacert /path/to/acme-cert-authority.ca.public.pem \
+       --user "$VALKEY_USERNAME" \
        -h server-alpha.network.local \
-       -p 6379 SET cpu_usage $cpu_usage
+       -p 6379 \
+       -a "$VALKEY_PASSWORD" \
+       SET cpu_usage $cpu_usage
      
      ./src/valkey-cli --tls \
        --cert /path/to/client-gamma.pem \
        --key /path/to/client-gamma.private.pem \
        --cacert /path/to/acme-cert-authority.ca.public.pem \
+       --user "$VALKEY_USERNAME" \
        -h server-alpha.network.local \
-       -p 6379 SET memory_usage $memory_usage
+       -p 6379 \
+       -a "$VALKEY_PASSWORD" \
+       SET memory_usage $memory_usage
 
      sleep 60
    done
