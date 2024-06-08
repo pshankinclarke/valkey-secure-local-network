@@ -98,7 +98,7 @@ Once you have an internal client configured (see [Configuring a Client](#configu
 2. **Create a Default User with a Password:**
    Run the following command in the shell to set up the default user. Setting the `default` user to `OFF` is a security best practice:
    ```plaintext
-   ACL SETUSER default OFF >your_secure_password ALLKEYS ALLCOMMANDS
+   ACL SETUSER default OFF >your_secure_password
    ```
 
 3. **Create a New User with a Password:**
