@@ -2,7 +2,7 @@
 
 Hello! Thank you for stopping by. Here you'll find tools for managing and interacting with Valkey across different machines on a local network.
 
-**A necessary proviso:** this guide is not exhaustive, definitive, or necessarily novel. Its primary purpose stems from a personal motivation to better catalog and make sense of the collection of files, sticky notes, and documents that I've accumulated while using Valkey. Throughout this guide, I've aimed to reference more reliable sources, particularly [Valkey](https://github.com/valkey-io/valkey/tree/unstable) itself.
+**A necessary proviso:** this guide is not exhaustive, definitive, or necessarily novel. Its primary purpose stems from a personal motivation to better catalog and make sense of the collection of files, sticky notes, and documents that I've accumulated while using Valkey. Throughout this guide, I've aimed to reference more reliable sources, particularly [Valkey](https://github.com/valkey-io/valkey/blob/unstable/README.md) itself.
 
 ## Running Valkey Clients on Windows
 
@@ -12,7 +12,7 @@ If you're interested in running Valkey clients locally on Windows with Python or
 
 ### Prerequisites
 
-To begin, ensure that Valkey is cloned, built, tested, and running with TLS. More detailed instructions can be found [here](https://github.com/valkey-io/valkey/blob/unstable/TLS.md). The following packages might be useful:
+To begin, ensure that Valkey is cloned, built, tested, and running with TLS. More detailed instructions can be found [here](https://github.com/valkey-io/valkey/blob/unstable/README.md). The following packages might be useful:
 
 ```sh
 sudo apt-get install expect libssl-dev pkg-config gcc g++ make openssl build-essential
