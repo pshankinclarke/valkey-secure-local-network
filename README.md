@@ -543,26 +543,19 @@ First, ensure that `server-alpha` is running the Valkey Server.
    ```
 
 ### Configuring systemd
-
-Systemd services can manage various tasks and processes for our server in the background, ensuring that they run continuously and restart automatically if they fail.
+Systemd services can manage various tasks and processes for our server in the background, so that they run continuously and restart automatically if they fail.
 
 1. **Copy the Template for the Valkey Server Service File:**
-
-   Copy the template file to the systemd directory using the `cp` command:
    ```bash
    sudo cp /home/valkeyuser/valkey/utils/systemd-valkey_server.service /etc/systemd/system/valkey-server.service
    ```
 
 2. **Edit the Copied Service File:**
-
-   Open the copied service file for editing:
    ```bash
    sudo vi /etc/systemd/system/valkey-server.service
    ```
 
 3. **Configure the `.service` File:**
-
-   Modify the service file with the appropriate configuration:
    ```plaintext
    [Unit]
    Description=Valkey data structure server
@@ -571,43 +564,41 @@ Systemd services can manage various tasks and processes for our server in the ba
    After=network-online.target
 
    [Service]
-   ExecStart=/home/valkeyuser/valkey/src/valkey-server /home/valkeyuser/valkey/valkey.conf --tls-port 6379 --port 0 --tls-cert-file /home/valkeyuser/valkey/tests/tls/server-alpha.pem --tls-key-file /home/valkeyuser/valkey/tests/tls/server-alpha.private.pem --tls-ca-cert-file /home/valkeyuser/valkey/tests/tls/acme-cert-authority.ca.public.pem
+   Type=simple
+   ExecStart=/home/valkeyuser/valkey/src/valkey-server /home/valkeyuser/valkey/valkey.conf \
+   --tls-port 6379 --port 0 \
+   --tls-cert-file /home/valkeyuser/valkey/tests/tls/server-alpha.pem \
+   --tls-key-file /home/valkeyuser/valkey/tests/tls/server-alpha.private.pem \
+   --tls-ca-cert-file /home/valkeyuser/valkey/tests/tls/acme-cert-authority.ca.public.pem \
+   --pidfile /var/run/valkey/valkey.pid
    LimitNOFILE=10032
    NoNewPrivileges=yes
-   Type=notify
-   TimeoutStartSec=infinity
-   TimeoutStopSec=infinity
    UMask=0077
+   RuntimeDirectory=valkey
+   WorkingDirectory=/home/valkeyuser/valkey
    User=valkeyuser
+   Group=valkeygroup
+   PrivateTmp=yes
+   ProtectSystem=full
+   TimeoutStartSec=30s
+   TimeoutStopSec=30s
+   Restart=on-failure
+   RestartSec=5s
 
    [Install]
    WantedBy=multi-user.target
    ```
 
-4. **Reload the systemd Manager Configuration:**
-
+5. **Reload, Enable & Start:**
    Reload the systemd manager configuration to apply the changes:
    ```bash
    sudo systemctl daemon-reload
-   ```
-
-5. **Enable the Service to Start at Boot:**
-
-   Enable the service to start at boot:
-   ```bash
    sudo systemctl enable valkey-server
-   ```
-
-6. **Start the Service:**
-
-   Start the Valkey server service:
-   ```bash
    sudo systemctl start valkey-server
    ```
-
-7. **Adjust Permissions if Necessary:**
-
-   If the TLS directory and certificates do not have the correct permissions, update them to allow access. Ensure the `valkeyuser` user has read and execute permissions on the directory:
+   
+6. **Adjust Permissions if Necessary:**
+   Ensure `valkeyuser` user can read the TLS and certs:
    ```bash
    sudo chown -R valkeyuser:valkeyuser /home/valkeyuser/valkey
    sudo chmod 755 /home/valkeyuser/valkey/tests/tls
@@ -615,42 +606,53 @@ Systemd services can manage various tasks and processes for our server in the ba
    sudo chmod 600 /home/valkeyuser/valkey/tests/tls/server-alpha.private.pem
    sudo chmod 644 /home/valkeyuser/valkey/tests/tls/acme-cert-authority.ca.public.pem
    ```
-
-8. **Verify the Ownership of the TLS Directory:**
-
-   Ensure the `valkeyuser` user owns the directory:
-   ```bash
-   sudo chown valkeyuser:valkeyuser /home/valkeyuser/valkey/tests/tls
-   ```
-
-9. **Check the Status of the Service:**
-
-   Verify that the service is running correctly:
-   ```bash
-   sudo systemctl status valkey-server
-   ```
-
-   Example output:
-   ```plaintext
-   valkeyuser@server-alpha:~$ sudo systemctl status valkey-server
-   ● valkey-server.service - Valkey data structure server
-        Loaded: loaded (/etc/systemd/system/valkey-server.service; enabled; vendor preset: enabled)
-        Active: activating (start) since Wed 2024-06-05 00:23:51 UTC; 24min ago
-          Docs: https://github.com/valkey-io/valkey-doc
-      Main PID: 5856 (valkey-server)
-         Tasks: 6 (limit: 38306)
-        Memory: 4.0M
-           CPU: 5.651s
-        CGroup: /system.slice/valkey-server.service
-                └─5856 "/home/valkeyuser/valkey/src/valkey-server 0.0.0.0:6379" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ">
-
-   Jun 05 00:47:48 server-alpha.network.local valkey-server[5856]: 5856:M 05 Jun 2024 00:47:48.848 - DB 0: 2 keys (0 volatile) i>
-   Jun 05 00:47:48 server-alpha.network.local valkey-server[5856]: 5856:M 05 Jun 2024 00:47:48.848 . 1 clients connected (0 repl>
-   ```
-
-10. **View the Logs if There are Issues:**
-
-    If there are issues, view the logs for more details:
+   
+7. **Verify the service:**
+    Verify that the service is running correctly (should be active):
     ```bash
-    sudo journalctl -u valkey-server.service
+    systemctl is-active valkey-server # should return "active"
     ```
+    Check status & isolation flags:
+    and:
+    ```bash
+    systemctl show valkey-server.service --property=PrivateTmp --property=ProtectSystem
+    # should display:
+    # PrivateTmp=yes
+    # ProtectSystem=full
+    systemctl status valkey-server.service
+    ```
+    Example output:
+      ```plaintext
+      valkeyuser@server-alpha:~$ sudo systemctl status valkey-server
+      PrivateTmp=yes
+      ProtectSystem=full
+      ● valkey-server.service - Valkey data structure server
+           Loaded: loaded (/etc/systemd/system/valkey-server.service; enabled; vendor preset: enabled)
+           Active: activating (running) since Wed 2024-06-05 00:23:51 UTC; 24min ago
+             Docs: https://github.com/valkey-io/valkey-doc
+         Main PID: 5856 (valkey-server)
+            Tasks: 6 (limit: 38306)
+           Memory: 4.0M
+              CPU: 5.651s
+           CGroup: /system.slice/valkey-server.service
+                   └─5856 "/home/valkeyuser/valkey/src/valkey-server 0.0.0.0:6379" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ">
+   
+      Jun 05 00:47:48 server-alpha.network.local valkey-server[5856]: 5856:M 05 Jun 2024 00:47:48.848 - DB 0: 2 keys (0 volatile) i>
+      Jun 05 00:47:48 server-alpha.network.local valkey-server[5856]: 5856:M 05 Jun 2024 00:47:48.848 . 1 clients connected (0 repl>
+      ```
+      Confirm ports are listening
+      ```bash
+      sudo ss -tulnp | grep valkey-server   
+      ```
+      Test auto-restart
+      ```bash
+      sudo pkill -9 valkey-server
+      sleep 6
+      systemctl is-active valkey-server # should return "active"
+      ```
+      If there are issues, check the log files:
+       ```bash
+       sudo journalctl -u valkey-server.service
+       ```
+
+    
