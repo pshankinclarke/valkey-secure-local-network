@@ -456,6 +456,7 @@ Here, we refer to the different linux machine as **`client-gamma`**.
 ### Write Script to Collect Metrics
 
 1. **Write Script to Collect Metrics:**
+
    On `client-gamma`, create a script to collect CPU and memory usage metrics and send them to the Valkey server, `server-alpha`.
 
    ```bash
@@ -501,12 +502,14 @@ Here, we refer to the different linux machine as **`client-gamma`**.
 First, ensure that `server-alpha` is running the Valkey Server.
 
 1. **Make the Script Executable:**
+
    Change the permissions of the script to make it executable.
    ```bash
    chmod +x ~/monitoring_script.sh
    ```
 
-2. **Run the Script:**
+3. **Run the Script:**
+
    Execute the monitoring script to start collecting and sending metrics.
    ```bash
    ./monitoring_script.sh
@@ -526,7 +529,8 @@ First, ensure that `server-alpha` is running the Valkey Server.
    Memory Usage: 69.18
    ```
 
-3. **Check the Output on the Server Machine:**
+4. **Check the Output on the Server Machine:**
+
    On the server machine `server-alpha`, use a client to verify that the metrics were received and stored correctly.
    ```bash
    ./src/valkey-cli --tls \
@@ -590,6 +594,7 @@ Systemd services can manage various tasks and processes for our server in the ba
    ```
 
 5. **Reload, Enable & Start:**
+
    Reload the systemd manager configuration to apply the changes:
    ```bash
    sudo systemctl daemon-reload
@@ -597,7 +602,8 @@ Systemd services can manage various tasks and processes for our server in the ba
    sudo systemctl start valkey-server
    ```
    
-6. **Adjust Permissions if Necessary:**
+7. **Adjust Permissions if Necessary:**
+
    Ensure `valkeyuser` user can read the TLS and certs:
    ```bash
    sudo chown -R valkeyuser:valkeyuser /home/valkeyuser/valkey
@@ -607,7 +613,8 @@ Systemd services can manage various tasks and processes for our server in the ba
    sudo chmod 644 /home/valkeyuser/valkey/tests/tls/acme-cert-authority.ca.public.pem
    ```
    
-7. **Verify the service:**
+9. **Verify the service:**
+
     Verify that the service is running correctly (should be active):
     ```bash
     systemctl is-active valkey-server # should return "active"
